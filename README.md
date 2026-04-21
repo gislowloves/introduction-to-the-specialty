@@ -1,0 +1,1 @@
+This repository contains homework for the course "Introduction to the Specialty"
