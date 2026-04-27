@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Смешарики — веб игра</title>
+    <style>
+        :root {
+            --sky-top: #dff6ff;
+            --sky-bottom: #fff7d8;
+            --panel: rgba(255, 255, 255, 0.78);
+            --panel-strong: rgba(255, 255, 255, 0.9);
+            --ink: #284355;
+            --muted: #5f7a89;
+            --accent: #ff9e59;
+            --accent-strong: #ff7d36;
+            --grass: #6dbb75;
+            --grass-dark: #3b8b53;
+            --shadow: 0 20px 45px rgba(58, 90, 110, 0.18);
+            --radius-xl: 28px;
+            --radius-lg: 22px;
+            --radius-md: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(255, 255, 255, 0.85), transparent 28%),
+                radial-gradient(circle at 85% 10%, rgba(255, 215, 135, 0.35), transparent 22%),
+                linear-gradient(180deg, var(--sky-top), var(--sky-bottom) 62%, #dff3d7 100%);
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            z-index: 0;
+            inset: auto;
+            pointer-events: none;
+        }
+
+        body::before {
+            width: 340px;
+            height: 340px;
+            left: -120px;
+            bottom: -120px;
+            border-radius: 50%;
+            background: rgba(126, 197, 115, 0.25);
+            filter: blur(10px);
+        }
+
+        body::after {
+            width: 320px;
+            height: 320px;
+            right: -90px;
+            top: 60px;
+            border-radius: 50%;
+            background: rgba(255, 184, 107, 0.18);
+            filter: blur(10px);
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            width: min(1180px, calc(100% - 32px));
+            margin: 24px auto 40px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 24px;
+            align-items: stretch;
+            margin-bottom: 24px;
+        }
+
+        .hero-card,
+        .visual-card,
+        .main-card,
+        .side-card,
+        .end-card {
+            background: var(--panel);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-card {
+            padding: 30px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--grass-dark);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 18px 0 12px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(34px, 6vw, 60px);
+            line-height: 0.96;
+            color: #21465d;
+        }
+
+        .lead {
+            margin: 0;
+            max-width: 640px;
+            font-size: 18px;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .meta-pill {
+            padding: 12px 16px;
+            border-radius: 16px;
+            background: var(--panel-strong);
+            color: var(--ink);
+            font-weight: 700;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .visual-card {
+            padding: 18px;
+            overflow: hidden;
+        }
+
+        .visual-frame {
+            position: relative;
+            min-height: 100%;
+            border-radius: 22px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(11, 36, 52, 0.16)),
+                url("{{ url_for('static', filename='romashkovo.jpg') }}"),
+                linear-gradient(180deg, rgba(128, 210, 255, 0.92), rgba(255, 246, 179, 0.86) 62%, rgba(125, 194, 106, 0.95));
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 22px;
+            isolation: isolate;
+        }
+
+        .visual-frame::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.28), transparent 18%),
+                radial-gradient(circle at 72% 26%, rgba(255, 255, 255, 0.2), transparent 18%),
+                linear-gradient(180deg, rgba(17, 60, 92, 0.04), rgba(34, 61, 41, 0.24));
+            z-index: -1;
+        }
+
+        .visual-label,
+        .visual-note {
+            background: rgba(255, 255, 255, 0.82);
+            border-radius: 18px;
+            padding: 12px 14px;
+            max-width: 300px;
+        }
+
+        .visual-label {
+            font-weight: 700;
+            color: #25566f;
+        }
+
+        .visual-note {
+            align-self: flex-start;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.8fr);
+            gap: 24px;
+            align-items: start;
+        }
+
+        .main-card {
+            padding: 24px;
+        }
+
+        .section-label {
+            margin: 0 0 10px;
+            font-size: 13px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #678291;
+        }
+
+        .story-box,
+        .result-box,
+        .final-box {
+            white-space: pre-wrap;
+            line-height: 1.7;
+            border-radius: var(--radius-lg);
+            padding: 22px;
+        }
+
+        .story-box {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(239, 250, 255, 0.9));
+            border: 1px solid rgba(178, 225, 239, 0.7);
+            min-height: 220px;
+            font-size: 18px;
+        }
+
+        .result-wrap {
+            margin-top: 18px;
+        }
+
+        .result-title {
+            margin: 0 0 10px;
+            font-size: 22px;
+            color: #2e6f5f;
+        }
+
+        .result-box {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(245, 255, 234, 0.96));
+            border: 1px solid rgba(191, 232, 181, 0.85);
+        }
+
+        .choices {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .choice-btn,
+        .next-btn,
+        .restart-btn {
+            appearance: none;
+            border: 0;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        .choice-btn {
+            padding: 16px 14px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff, #f6f0de);
+            color: var(--ink);
+            font-weight: 700;
+            box-shadow: 0 12px 25px rgba(88, 117, 136, 0.12);
+        }
+
+        .choice-btn:hover:not(:disabled),
+        .next-btn:hover,
+        .restart-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .choice-btn:disabled {
+            cursor: default;
+            opacity: 0.48;
+            transform: none;
+        }
+
+        .next-row {
+            margin-top: 18px;
+        }
+
+        .next-btn,
+        .restart-btn {
+            padding: 14px 22px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            color: white;
+            font-size: 16px;
+            font-weight: 800;
+            box-shadow: 0 16px 26px rgba(255, 125, 54, 0.28);
+        }
+
+        .side-card {
+            padding: 20px;
+        }
+
+        .side-title {
+            margin: 0 0 16px;
+            font-size: 24px;
+            color: #21465d;
+        }
+
+        .day-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 92px;
+            padding: 12px 16px;
+            margin-bottom: 18px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff, #e9f9ff);
+            color: #245f76;
+            font-weight: 800;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .village-meter {
+            margin-bottom: 20px;
+            padding: 16px;
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(255, 248, 225, 0.95), rgba(255, 240, 198, 0.9));
+        }
+
+        .meter-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .meter-track {
+            width: 100%;
+            height: 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #f2a44f, #8ccf6a, #4eb47f);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .stat-card {
+            padding: 12px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.86);
+            border: 1px solid rgba(220, 239, 245, 0.9);
+        }
+
+        .stat-name {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #215267;
+        }
+
+        .end-card {
+            margin-top: 24px;
+            padding: 24px;
+        }
+
+        .end-card h2 {
+            margin: 0 0 10px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 34px;
+            color: #29526a;
+        }
+
+        .end-card p {
+            margin: 0 0 18px;
+            color: var(--muted);
+            font-size: 17px;
+        }
+
+        .final-box {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(238, 252, 236, 0.92));
+            border: 1px solid rgba(206, 235, 196, 0.92);
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 980px) {
+            .hero,
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .visual-card {
+                min-height: 280px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .page {
+                width: min(100% - 20px, 100%);
+                margin-top: 10px;
+            }
+
+            .hero-card,
+            .main-card,
+            .side-card,
+            .end-card {
+                padding: 18px;
+            }
+
+            .choices,
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .story-box {
+                font-size: 17px;
+                min-height: 180px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="page">
+    <section class="hero">
+        <div class="hero-card">
+            <div class="eyebrow">Ромашковая долина</div>
+            <h1>Сказочная деревня, где каждое решение меняет настроение жителей</h1>
+            <p class="lead">
+                Выбирай, как пройдут семь дней в мире Смешариков: поддерживай друзей,
+                спасай настроение деревни и смотри, к чему приведут твои решения.
+            </p>
+            <div class="hero-meta">
+                <div class="meta-pill">7 игровых дней</div>
+                <div class="meta-pill">Выбор влияет на всех</div>
+                <div class="meta-pill">Финальная сводка по героям</div>
+            </div>
+        </div>
+
+        <div class="visual-card">
+            <div class="visual-frame">
+                <div class="visual-note">Осмотрите свои прекрасные владения и почувствуйте, какая ответственность на вас лежит!</div>
+                <div class="visual-label">Солнечное место для историй, приключений и немного хаоса</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="layout">
+        <main class="main-card">
+            <p class="section-label">Событие дня</p>
+            <div id="event" class="story-box">Загрузка...</div>
+
+            <div class="choices">
+                <button id="btn1" class="choice-btn" onclick="choose(1)">Выбор 1</button>
+                <button id="btn2" class="choice-btn" onclick="choose(2)">Выбор 2</button>
+                <button id="btn3" class="choice-btn" onclick="choose(3)">Выбор 3</button>
+            </div>
+
+            <div class="next-row">
+                <button id="nextBtn" class="next-btn" onclick="nextDay()" style="display:none;">
+                    Следующий день
+                </button>
+            </div>
+
+            <div class="result-wrap">
+                <h3 id="resultTitle" class="result-title" style="display:none;">Итог решения</h3>
+                <div id="result" class="result-box"></div>
+            </div>
+        </main>
+
+        <aside class="side-card">
+            <div id="dayBadge" class="day-badge">День 1 / 7</div>
+            <h2 class="side-title">Состояние деревни</h2>
+
+            <div class="village-meter">
+                <div class="meter-top">
+                    <span>Настроение</span>
+                    <span id="villageValue">50</span>
+                </div>
+                <div class="meter-track">
+                    <div id="villageBar" class="meter-fill" style="width:50%;"></div>
+                </div>
+            </div>
+
+            <div id="statsGrid" class="stats-grid"></div>
+        </aside>
+    </section>
+
+    <section id="endScreen" class="end-card" style="display:none;">
+        <h2>Игра завершена</h2>
+        <p>Ты прожил неделю в Ромашковой долине. Вот чем закончилась эта история.</p>
+        <div id="finalStats" class="final-box"></div>
+        <button class="restart-btn" onclick="restartGame()">Начать заново</button>
+    </section>
+</div>
+
+<script>
+let day = 0;
+const maxDays = 7;
+
+const displayNames = {
+    "Krosh": "Крош",
+    "Yozhik": "Ёжик",
+    "Nyusha": "Нюша",
+    "Barash": "Бараш",
+    "Losyash": "Лосяш",
+    "Pin": "Пин",
+    "Sovunya": "Совунья",
+    "Kar-Karych": "Кар-Карыч",
+    "Kopatych": "Копатыч"
+};
+
+function showChoiceButtons(visible) {
+    const display = visible ? "block" : "none";
+    document.getElementById("btn1").style.display = display;
+    document.getElementById("btn2").style.display = display;
+    document.getElementById("btn3").style.display = display;
+}
+
+function updateDayBadge() {
+    document.getElementById("dayBadge").innerText = `День ${Math.min(day + 1, maxDays)} / ${maxDays}`;
+}
+
+function renderStats(data) {
+    const stats = data.stats || {};
+    const village = data.village ?? 50;
+    const statsGrid = document.getElementById("statsGrid");
+
+    document.getElementById("villageValue").innerText = village;
+    document.getElementById("villageBar").style.width = `${Math.max(0, Math.min(100, village))}%`;
+
+    statsGrid.innerHTML = "";
+
+    Object.entries(stats).forEach(([key, value]) => {
+        const card = document.createElement("div");
+        card.className = "stat-card";
+        card.innerHTML = `
+            <span class="stat-name">${displayNames[key] || key}</span>
+            <span class="stat-value">${value}</span>
+        `;
+        statsGrid.appendChild(card);
+    });
+}
+
+async function refreshStats() {
+    const res = await fetch("/stats");
+    const data = await res.json();
+    renderStats(data);
+}
+
+async function loadEvent() {
+    updateDayBadge();
+
+    let res = await fetch(`/event/${day}`);
+    let data = await res.json();
+
+    if (data.error) {
+        document.getElementById("event").innerText = `Ошибка: ${data.error}`;
+        setButtons(false);
+        return;
+    }
+
+    document.getElementById("event").innerText = data.text;
+    document.getElementById("result").innerText = "";
+    document.getElementById("resultTitle").style.display = "none";
+    document.getElementById("nextBtn").style.display = "none";
+    document.getElementById("event").style.display = "block";
+    document.getElementById("result").style.display = "block";
+    showChoiceButtons(true);
+    setButtons(true);
+    await refreshStats();
+}
+
+async function choose(option) {
+    let res = await fetch(`/choice/${day}/${option}`);
+    let data = await res.json();
+
+    if (data.error || !data.result) {
+        document.getElementById("result").innerText =
+            `Ошибка: ${data.error || "нет результата от сервера"}`;
+        return;
+    }
+
+    document.getElementById("result").innerText = data.result;
+    document.getElementById("resultTitle").style.display = "block";
+    setButtons(false);
+    document.getElementById("nextBtn").style.display = "inline-flex";
+
+    if (data.state) {
+        renderStats(data.state);
+    } else {
+        await refreshStats();
+    }
+}
+
+function setButtons(enabled) {
+    document.getElementById("btn1").disabled = !enabled;
+    document.getElementById("btn2").disabled = !enabled;
+    document.getElementById("btn3").disabled = !enabled;
+}
+
+function nextDay() {
+    day++;
+
+    if (day >= maxDays) {
+        showEndScreen();
+        return;
+    }
+
+    loadEvent();
+}
+
+async function showEndScreen() {
+    hideGameUI();
+
+    document.getElementById("event").style.display = "none";
+    document.getElementById("resultTitle").style.display = "none";
+    document.getElementById("result").style.display = "none";
+    document.getElementById("nextBtn").style.display = "none";
+    document.getElementById("endScreen").style.display = "block";
+
+    let res = await fetch("/stats");
+    let data = await res.json();
+    let text = "";
+
+    if (data.stats) {
+        for (let k in data.stats) {
+            text += `${displayNames[k] || k}: ${data.stats[k]}\n`;
+        }
+    }
+
+    text += `\nНастроение деревни: ${data.village}`;
+
+    document.getElementById("finalStats").innerText = text;
+    renderStats(data);
+}
+
+async function restartGame() {
+    await fetch("/restart", { method: "POST" });
+
+    day = 0;
+    document.getElementById("endScreen").style.display = "none";
+    document.getElementById("finalStats").innerText = "";
+    showChoiceButtons(true);
+    await refreshStats();
+    loadEvent();
+}
+
+function hideGameUI() {
+    showChoiceButtons(false);
+    document.getElementById("nextBtn").style.display = "none";
+}
+
+refreshStats();
+loadEvent();
+</script>
+</body>
+</html>
