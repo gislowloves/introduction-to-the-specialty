@@ -27,6 +27,11 @@ jobs:
         run: |
           flake8 app.py --max-line-length=120
 
+      - name: Install C++ dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nlohmann-json3-dev
+
       - name: Build C++ part
         run: |
           g++ -std=c++17 camomile.cpp -o game
