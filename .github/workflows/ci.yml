@@ -1,0 +1,37 @@
+name: CIForITTS
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          pip install flask flake8
+
+      - name: Lint Python with flake8
+        run: |
+          flake8 app.py --max-line-length=120
+
+      - name: Install C++ dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nlohmann-json3-dev
+
+      - name: Build C++ part
+        run: |
+          g++ -std=c++17 camomile.cpp -o game
