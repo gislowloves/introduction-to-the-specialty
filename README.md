@@ -35,6 +35,7 @@
 - `Flask` — веб-фреймворк;
 - `C++` — игровая логика и обработка событий;
 - `HTML / CSS / JavaScript` — клиентская часть;
+- `Docker` — контейнеризация приложения;
 - `Git / GitHub` — контроль версий и совместная работа.
 
 ## Предполагаемая архитектура
@@ -86,38 +87,19 @@ git clone https://github.com/gislowloves/introduction-to-the-specialty.git
 cd introduction-to-the-specialty
 ```
 
-### 2. Создать и активировать виртуальное окружение
-
-Linux / WSL:
+### 2. Собрать образ
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+docker build -t romashkovo .
 ```
 
-### 3. Установить зависимости
+### 3. Запустить контейнер
 
 ```bash
-pip install flask
+docker run -p 5000:5000 romashkovo
 ```
 
-### 4. Собрать C++-часть
-
-```bash
-g++ -std=c++17 camomile.cpp -o game
-```
-
-### 5. Запустить приложение
-
-```bash
-python app.py
-```
-
-После этого приложение будет доступно по адресу:
-
-```text
-http://127.0.0.1:5000
-```
+Открой в браузере: `http://localhost:5000`
 
 ## Возможные улучшения
 
