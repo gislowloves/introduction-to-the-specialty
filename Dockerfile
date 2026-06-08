@@ -27,4 +27,6 @@ COPY --from=builder /app/game .
 
 EXPOSE 5000
 
+RUN useradd -m appuser
+USER appuser
 CMD ["python", "app.py"]

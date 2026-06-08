@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install flask flake8 pytest
+          pip install flask flake8 pytest semgrep
 
       - name: Lint Python with flake8
         run: |
@@ -42,3 +42,7 @@ jobs:
       - name: Run tests
         run: |
           pytest tests/ -v
+
+      - name: Run Semgrep
+        run: |
+          semgrep scan --config=auto . --error
