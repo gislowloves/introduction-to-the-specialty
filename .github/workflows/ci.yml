@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install flask flake8
+          pip install flask flake8 pytest
 
       - name: Lint Python with flake8
         run: |
@@ -38,3 +38,7 @@ jobs:
       - name: Build C++ part
         run: |
           g++ -std=c++17 camomile.cpp -o game
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v
