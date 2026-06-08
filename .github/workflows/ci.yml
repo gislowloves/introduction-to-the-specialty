@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install flask flake8
+          pip install flask flake8 pytest
 
       - name: Lint Python with flake8
         run: |
