@@ -38,3 +38,7 @@ jobs:
       - name: Build C++ part
         run: |
           g++ -std=c++17 camomile.cpp -o game
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v

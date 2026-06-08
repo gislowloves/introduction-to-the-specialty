@@ -75,7 +75,13 @@ my_projects/
 ├─ static/
 │  └─ romashkovo.jpg
 ├─ .gitignore
-└─ README.md
+├─ README.md
+├─ tests/
+│  └─ test_village.py
+├─ conftest.py
+├─ .github/
+│  └─ workflows/
+│     └─ ci.yml
 ```
 
 ## Как запустить проект
@@ -121,3 +127,20 @@ docker run -p 5000:5000 romashkovo
 - работу с шаблонами;
 - оформление репозитория;
 - использование GitHub, веток, Pull Request и обсуждений.
+
+## Тестирование
+
+В проекте используются автоматические тесты на базе `pytest`.
+
+### Что покрыто
+
+- **Unit-тесты** — проверяют функцию `make_initial_state`: корректный тип возвращаемого значения, начальные значения дня, настроения деревни и характеристик всех 9 персонажей.
+- **Functional-тесты** — проверяют HTTP-маршруты Flask: `GET /`, `POST /restart`, `GET /stats`.
+
+### Как запустить
+
+```bash
+pip install flask pytest
+pytest tests/ -v
+```
+
