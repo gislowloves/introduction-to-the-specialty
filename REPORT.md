@@ -86,7 +86,7 @@ SBOM (Software Bill of Materials) в формате CycloneDX сохранён
 trivy fs . --format cyclonedx --output sbom.json
 ```
 
-## CI/CD
+## CI
 
 Настроен GitHub Actions (`.github/workflows/ci.yml`).
 При каждом push и pull request в ветку `master` автоматически выполняется:
@@ -108,7 +108,7 @@ trivy fs . --format cyclonedx --output sbom.json
 - использование инструментов статического анализа (Semgrep) для поиска
   уязвимостей в коде
 - использование Trivy для анализа зависимостей и генерации SBOM
-- настройку CI/CD пайплайна на GitHub Actions
+- настройку CI пайплайна на GitHub Actions
 - исправление реальных уязвимостей в коде и зависимостях
 
 Проект показал, что даже небольшое учебное приложение содержит реальные
