@@ -42,3 +42,7 @@ jobs:
       - name: Run tests
         run: |
           pytest tests/ -v
+
+      - name: Run Semgrep
+        run: |
+          semgrep scan --config=auto . --error
